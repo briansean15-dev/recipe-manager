@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // TODO: import your components once you build them
-// import RecipeForm from "./components/RecipeForm";
-// import CategoryFilter from "./components/CategoryFilter";
-// import RecipeList from "./components/RecipeList";
-// import SummaryBar from "./components/SummaryBar";
+import RecipeForm from "./components/RecipeForm";
+import CategoryFilter from "./components/CategoryFilter";
+import RecipeList from "./components/RecipeList";
+import SummaryBar from "./components/SummaryBar";
 
 const STARTER_RECIPES = [
   { id: 1, title: "Chicken Adobo", category: "Dinner", time: 45, favorite: false },
@@ -21,13 +21,18 @@ export default function App() {
 
   // TODO 2: create the `filter` state, starting as "All".
   //         Later, wrap it in the lazy initializer that reads from localStorage.
+  const [filter, setFilter] = useState("All");
 
   // TODO 3: add useEffect to persist `recipes` to localStorage whenever it changes.
+  useEffect(() => {
+    localStorage.setItem("filter", filter);
+  }, [filter]);
 
-  // TODO 4: add useEffect to persist `filter` to localStorage whenever it changes.
+  const favoriteCount = recipes.filter((recipe) => recipe.favorite).length;
 
-  // TODO 5: add useEffect to update `document.title` with the favorite count.
-  //         Example format: `Recipes · 3 ★`
+  useEffect(() => {
+    document.title = `Recipes \u00b7 ${favoriteCount} \u2605`;
+  }, [favoriteCount]);
 
   // TODO 6: write handleAdd(recipe) — adds a new recipe with a unique id (Date.now()).
   //         Use the spread operator, NOT .push().
