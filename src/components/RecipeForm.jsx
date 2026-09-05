@@ -11,13 +11,16 @@ export default function RecipeForm({ onAdd }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     // TODO: reject if title is empty (after .trim()).
+
     if (!title.trim()) {
       return;
     }
 
     // TODO: call onAdd({ title, category, time: Number(time) || 0 }).
+
     onAdd({ title, category, time: Number(time) || 0 });
     // TODO: clear the form fields.
+
     setTitle("");
     setCategory("");
     setTime("");
@@ -29,6 +32,7 @@ export default function RecipeForm({ onAdd }) {
       className="card bg-base-100 shadow p-4 grid grid-cols-1 md:grid-cols-4 gap-3"
     >
       {/* TODO: title input (text) — must be controlled */}
+
       <input
         type="text"
         placeholder="Recipe title"
@@ -38,6 +42,7 @@ export default function RecipeForm({ onAdd }) {
       />
 
       {/* TODO: category dropdown — must be controlled. Map over CATEGORIES for the options. */}
+
       <select
         className="select select-bordered"
         value={category}
@@ -52,6 +57,7 @@ export default function RecipeForm({ onAdd }) {
       </select>
 
       {/* TODO: time input (number) — must be controlled */}
+      
       <input
         type="number"
         placeholder="Time (min)"
