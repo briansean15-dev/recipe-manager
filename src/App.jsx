@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 // TODO: import your components once you build them
 import RecipeForm from "./components/RecipeForm";
 import CategoryFilter from "./components/CategoryFilter";
@@ -17,7 +18,10 @@ const STARTER_RECIPES = [
 export default function App() {
   // TODO 1: create the `recipes` state using STARTER_RECIPES as the initial value.
   //         Later, wrap it in the lazy initializer that reads from localStorage.
-  const [recipes, setRecipes] = useState(STARTER_RECIPES);
+  const [recipes, setRecipes] = useState(() => {
+    const storedRecipes = localStorage.getItem("recipes");
+    return storedRecipes ? JSON.parse(storedRecipes) : STARTER_RECIPES;
+  });
 
   // TODO 2: create the `filter` state, starting as "All".
   //         Later, wrap it in the lazy initializer that reads from localStorage.
@@ -25,26 +29,58 @@ export default function App() {
 
   // TODO 3: add useEffect to persist `recipes` to localStorage whenever it changes.
   useEffect(() => {
+    localStorage.setItem("recipes", JSON.stringify(recipes));
+  }, [recipes]);
+
+  // TODO 4: add useEffect to persist `filter` to localStorage whenever it changes.
+  useEffect(() => {
     localStorage.setItem("filter", filter);
   }, [filter]);
 
-  const favoriteCount = recipes.filter((recipe) => recipe.favorite).length;
-
+  // TODO 5: add useEffect to update `document.title` with the favorite count.
+  //         Example format: `Recipes · 3 ★`
   useEffect(() => {
+    const favoriteCount = recipes.filter((r) => r.favorite).length;
     document.title = `Recipes \u00b7 ${favoriteCount} \u2605`;
-  }, [favoriteCount]);
+  }, [recipes]);
+
+  // Load filter from localStorage on initial render
+  useEffect(() => {
+    const storedFilter = localStorage.getItem("filter");
+    if (storedFilter) {
+      setFilter(storedFilter);
+    }
+  }, []);
 
   // TODO 6: write handleAdd(recipe) — adds a new recipe with a unique id (Date.now()).
   //         Use the spread operator, NOT .push().
+  const handleAdd = (recipe) => {
+    const newRecipe = { ...recipe, id: Date.now() };
+    setRecipes((prevRecipes) => [...prevRecipes, newRecipe]);
+  };
 
   // TODO 7: write handleToggleFavorite(id) — flips the `favorite` field of the matching recipe.
   //         Use .map() and spread; do NOT mutate the object directly.
+  const handleToggleFavorite = (id) => {
+    setRecipes((prevRecipes) =>
+      prevRecipes.map((recipe) =>
+        recipe.id === id ? { ...recipe, favorite: !recipe.favorite } : recipe
+      )
+    );
+  };
 
   // TODO 8: write handleDelete(id) — removes the recipe with that id.
   //         Use .filter().
+  const handleDelete = (id) => {
+    setRecipes((prevRecipes) => prevRecipes.filter((recipe) => recipe.id !== id));
+  };
 
   // TODO 9: derive `visibleRecipes` in render — if filter === "All" show all,
   //         otherwise filter by category. Do NOT store this in state.
+  const visibleRecipes =
+    filter === "All"
+      ? recipes
+      : recipes.filter((recipe) => recipe.category === filter);
 
   return (
     <div className="min-h-screen bg-base-200 py-8 px-4">
@@ -57,21 +93,25 @@ export default function App() {
         </header>
 
         {/* TODO: render <RecipeForm onAdd={handleAdd} /> */}
+        <RecipeForm onAdd={handleAdd} />
 
         {/* TODO: render <SummaryBar total={...} favorites={...} /> */}
+        <SummaryBar
+          total={recipes.length}
+          favorites={recipes.filter((r) => r.favorite).length}
+        />
 
         {/* TODO: render <CategoryFilter activeFilter={filter} onFilterChange={setFilter} /> */}
+        <CategoryFilter activeFilter={filter} onFilterChange={setFilter} />
 
         {/* TODO: render <RecipeList recipes={visibleRecipes}
                                     onToggleFavorite={handleToggleFavorite}
                                     onDelete={handleDelete} /> */}
-
-        <div className="alert alert-info">
-          <span>
-            Delete this alert once you have wired up your components. Then run{" "}
-            <code className="font-mono">npm run dev</code> and check the browser.
-          </span>
-        </div>
+        <RecipeList
+          recipes={visibleRecipes}
+          onToggleFavorite={handleToggleFavorite}
+          onDelete={handleDelete}
+        />
       </div>
     </div>
   );
